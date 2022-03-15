@@ -9,22 +9,29 @@
 	.data
 	C: .word 2
 	i: .word 3
-	A: .space 400	# (32/4)*100
+	A: .space 400	# (32/8)*100
 	B: .space 400
 	
 	.text
 	.globl main
 main:
-	la $t1, A
-	la $t2, B
-	la $s1, i
-	la $s2, C
+	la $t1, A	# load address of A
+	la $t2, B	# load address of B
+	la $s1, i	# load address of i
+	la $s2, C	# load address of C
 	
-	li $t6, 10
-	sw $t6, i($t2)
+	li $t6, 10	# load immediate
+	li $s4, 4	# load immediate
+	lw $s6, 0($s1)	# load word i
+	mult $s4, $s6	# 4*3 offset
+	mflo $s5	# move from lo (12)
+	add $s7, $s5, $t2	# address of B[i] (base address + offset)
+	sw $t6, 0($s7)	# store word 10 in B[i]
 	
-	addi $t4, $s2, 5
-	la $s3, i+16($t2)
-	add $t4, $t4, $s3 
+	# A[99] = 5 + B[i] + C
+	lw $t7, 0($s7)		# load word B[i]
+	addi $t4, $t7, 5		# 5 + B[i]
+	lw $t2, 0($s2)		# load word C
+	add $t4, $t4, $t2	# (5+B[i]) + C
 	
-	sw $t4, 99($t1)
+	sw $t4, 396($t1)	# 99*4=396
